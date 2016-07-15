@@ -1,0 +1,11 @@
+---
+- name: configure volume group
+  lvg: vg=primary pvs=/dev/vda5,/dev/vdb
+
+- name: resize the logical volume
+  lvol: vg=primary lv=root size=+100%FREE
+
+# TBD: http://stackoverflow.com/questions/28088486/ansible-is-it-possible-to-resize-ext4-filesystem
+# make it idempotent
+- name: resize the file system
+  command: resize2fs /dev/mapper/primary-root

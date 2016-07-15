@@ -1,7 +1,8 @@
-* TODO Fix checkout of k8s tree
-  need ssh key forwarding
+* TODO Install user's ssh key
+  copy authorized keys from the host
 * TODO Don't hardcode 'vagrant' user and github repo owner in the playbook
 * TODO Add README.md
+* TODO Make the playbook idempotent
 * TODO Fix go installation
   CGO_ENABLED=0 go install -a -installsuffix cgo std
 * TODO Build own base vagrant image
@@ -25,6 +26,7 @@
   https://hub.docker.com/_/docker/
   https://github.com/llamashoes/dind-kubernetes (uses older dind)
   http://iocanel.blogspot.ru/2015/09/jenkins-setups-for-kubernetes-and.html
+  https://github.com/docker/docker/blob/master/hack/dind
 * Notes
 ** A tmp hack to clone authorized keys into vagrant vm
   Actually not the correct way to do it.

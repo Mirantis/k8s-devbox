@@ -1,0 +1,27 @@
+---
+# TBD: update apt cache!
+- name: install dev packages
+  apt: "name={{ item }} state=latest"
+  with_items:
+    - git
+    - htop
+    - mercurial
+    - build-essential
+    - libvirt-bin
+    - qemu-system
+    - qemu-system-x86
+    - qemu-kvm
+    - libxslt-dev
+    - libxml2-dev
+    - libvirt-dev
+    - zlib1g-dev
+    - ruby-dev
+    - nfs-kernel-server
+    - docker.io
+    - screen
+
+- name: install fresh vagrant package
+  apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
+
+- name: add the user to 'docker' group
+  user: name=vagrant groups=docker append=yes
