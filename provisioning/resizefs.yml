@@ -5,7 +5,14 @@
 - name: resize the logical volume
   lvol: vg=primary lv=root size=+100%FREE
 
-# TBD: http://stackoverflow.com/questions/28088486/ansible-is-it-possible-to-resize-ext4-filesystem
+# http://stackoverflow.com/questions/28088486/ansible-is-it-possible-to-resize-ext4-filesystem
+- name: Assert root partition is expanded
+  assert: { that: item.mount != '/' or item.size_total > 10737418240 } # 10 GB
+  with_items: '{{ ansible_mounts }}'
+  ignore_errors: yes
+  register: expanded
+
 # make it idempotent
 - name: resize the file system
   command: resize2fs /dev/mapper/primary-root
+  when: expanded|failed
