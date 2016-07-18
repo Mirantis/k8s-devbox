@@ -1,5 +1,7 @@
 ---
-# TBD: update apt cache!
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
 - name: install dev packages
   apt: "name={{ item }} state=latest"
   with_items:
@@ -19,7 +21,21 @@
     - nfs-kernel-server
     - docker.io
     - screen
+    - curl
+    - etcd
 
+- name: stop etcd service
+  # must not be started or hack/local-up-cluster.sh will not work
+  service: name=etcd state=stopped
+
+- name: disable etcd service
+  service: name=etcd enabled=no
+
+- name: install cgo & fix stdlib
+  shell: "CGO_ENABLED=0 /usr/local/go/bin/go install -a -installsuffix cgo std"
+  args:
+    creates: /usr/local/go/pkg/linux_amd64_cgo
+  
 - name: install fresh vagrant package
   apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
 

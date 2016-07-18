@@ -1,0 +1,18 @@
+
+* k8s local development environment
+
+fix-influxdb = fix InfluxDB cluster monitoring addon
+               [tmp, currently needed for e2e tests]
+kube-up      = bring up the cluster
+kube-down    = bring down the cluster
+e2e [focus]  = run e2e test(s)
+               ('focus' is a regular expression, but spaces aren't allowed there)
+local-up     = bring up the local cluster
+use-local    = switch to 'local' provider (use with local-up)
+
+* 'native' k8s commands
+
+make               = build k8s binaries
+make quick-release = build k8s release for use with kube-up
+make test          = run unit tests
+

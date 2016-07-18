@@ -1,0 +1,15 @@
+#!/bin/bash
+set >/tmp/ans-play.cmd
+echo "$*" >/tmp/ans-play.cmd
+devbox_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+docker run --rm \
+       -e PYTHONUNBUFFERED="$PYTHONUNBUFFERED"\
+       -e ANSIBLE_ROLES_PATH="$ANSIBLE_ROLES_PATH" \
+       -e ANSIBLE_FORCE_COLOR="$ANSIBLE_FORCE_COLOR" \
+       -e ANSIBLE_HOST_KEY_CHECKING="$ANSIBLE_HOST_KEY_CHECKING" \
+       -e ANSIBLE_SSH_ARGS="$ANSIBLE_SSH_ARGS" \
+       -e SSH_AUTH_SOCK=/ssh-agent \
+       -v $SSH_AUTH_SOCK:/ssh-agent \
+       -v "$devbox_dir:$devbox_dir" \
+       williamyeh/ansible:alpine3 \
+       ansible-playbook "$@"

@@ -1,0 +1,11 @@
+#!/bin/bash
+set >/tmp/ans-galaxy.cmd
+echo "$*" >/tmp/ans-galaxy.cmd
+devbox_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+docker run --rm \
+       -e ANSIBLE_ROLES_PATH=$ANSIBLE_ROLES_PATH \
+       -e SSH_AUTH_SOCK=/ssh-agent \
+       -v $SSH_AUTH_SOCK:/ssh-agent \
+       -v "$devbox_dir:$devbox_dir" \
+       williamyeh/ansible:alpine3 \
+       ansible-galaxy "$@"
