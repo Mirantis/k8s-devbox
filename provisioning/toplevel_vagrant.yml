@@ -25,8 +25,4 @@
       copy: src=files/motd dest=/etc
       become: true
 
-    - name: remove PS1 settings from .bashrc
-      # FIXME: use cleaner approach
-      replace: dest=/home/vagrant/.bashrc regexp='PS1=.*' replace='true'
-
     - include: devenv.yml

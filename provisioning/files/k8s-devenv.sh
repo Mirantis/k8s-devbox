@@ -1,23 +1,30 @@
+if [ "$USER" = "vagrant" ]; then
+    # In case of vagrant VM, provide a useful default prompt and go to k8s directory
+    # The prompts gets overridden in default ~/.bashrc,
+    # so reset it even if this script was already sourced
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    export GIT_PS1_SHOWUNTRACKEDFILES=1
+    export PS1='\[\033[1;95m\]\u@\h\[\e[0m\]:\[\e[1;32m\]\w\[\033[0;33m\]$(__git_ps1 " (%s) ")\[\e[0m\]\$ '
+fi
+
+if [ -n "${KUBERNETES_SRC_DIR:-}" ]; then
+    return
+fi
+
 export KPATH=$HOME/work/kubernetes
 export GOPATH=$KPATH
 export PATH=$HOME/go-tools/bin:$KPATH/bin:$PATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
 
-alias kubectl=$KUBERNETES_SRC_DIR/cluster/kubectl.sh
-
-# FIXME: should fix the prompt
-if [ "$USER" = "vagrant" ]; then
-    # In case of vagrant VM, provide a useful default prompt and go to k8s directory
-    export GIT_PS1_SHOWDIRTYSTATE=1
-    export GIT_PS1_SHOWUNTRACKEDFILES=1
-    export PS1='\[\033[1;95m\]\u@\h\[\e[0m\]:\[\e[1;32m\]\w\[\033[0;33m\]$(__git_ps1 " (%s) ")\[\e[0m\]\$ '
-    if [ -d "$KUBERNETES_SRC_DIR" ]; then
-        cd "$KUBERNETES_SRC_DIR"
-    fi
+if [ "$USER" = "vagrant" -a -d "$KUBERNETES_SRC_DIR" ]; then
+    cd "$KUBERNETES_SRC_DIR"
 fi
+
+alias kubectl=$KUBERNETES_SRC_DIR/cluster/kubectl.sh
 
 function fix-influxdb {
     (
+        set -x
         cd $KUBERNETES_SRC_DIR
         curl https://patch-diff.githubusercontent.com/raw/kubernetes/kubernetes/pull/28771.patch |
             patch -p1

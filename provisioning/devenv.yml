@@ -28,6 +28,9 @@
   copy: src=files/k8s-devenv.sh dest=/etc/profile.d
   become: true
 
+- name: source k8s-devenv.sh from bashrc
+  lineinfile: "dest={{ ansible_env.HOME }}/.bashrc regexp='^.*/k8s-devenv.sh' line='. /etc/profile.d/k8s-devenv.sh'"
+
 - name: check out k8s source tree
   git:
     repo: "{{ k8s_repo_url }}"
