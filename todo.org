@@ -1,27 +1,7 @@
 * TODO Install user's ssh key
   copy authorized keys from the host
-* TODO Don't hardcode 'vagrant' user and github repo owner in the playbook
-* TODO Add README.md
-* TODO Make the playbook idempotent
-* TODO Fix go installation
-  CGO_ENABLED=0 go install -a -installsuffix cgo std
 * TODO Build own base vagrant image
   use packer for that, see libvirt README
-* TODO Chdir to k8s dir on login
-* TODO Add instructions / setup script for the host
-* TODO Add some minimal shell prompt prettiness
-* TODO Add aliases for common actions
-** Start k8s vagrant cluster
-   time make quick-release && time VAGRANT_DEFAULT_PROVIDER=libvirt KUBERNETES_VAGRANT_USE_NFS=true KUBERNETES_NODE_MEMORY=1024 NUM_NODES=2 KUBERNETES_PROVIDER=vagrant cluster/kube-up.sh
-** Stop the cluster
-   VAGRANT_DEFAULT_PROVIDER=libvirt KUBERNETES_VAGRANT_USE_NFS=true NUM_NODES=2 KUBERNETES_PROVIDER=vagrant cluster/kube-down.sh
-** Run a e2e test
-   time hack/build-go.sh && KUBERNETES_PROVIDER=vagrant go run hack/e2e.go -v --test --test_args="--ginkgo.focus=existing.RC"
-** Run the set of e2e tests similar to one used by upstream CI
-   time hack/build-go.sh && KUBERNETES_PROVIDER=vagrant go run ./hack/e2e.go -v --test '--test_args=--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]'
-** Run unit tests
-** Build k8s
-* TODO Should be able to use the playbook to provision non-vagrant vms, too
 * TODO Research DIND appropaches
   https://hub.docker.com/_/docker/
   https://github.com/llamashoes/dind-kubernetes (uses older dind)

@@ -1,0 +1,35 @@
+- name: Host
+  hosts: all
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+      become: true
+
+    - name: install dev packages
+      apt: "name={{ item }} state=latest"
+      become: true
+      with_items:
+        - build-essential
+        - libvirt-bin
+        - qemu-system
+        - qemu-system-x86
+        - qemu-kvm
+        - libxslt-dev
+        - libxml2-dev
+        - libvirt-dev
+        - zlib1g-dev
+        - ruby-dev
+
+    - name: install fresh vagrant package
+      apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
+      become: true
+
+    - name: check for vagrant libvirt plugin
+      shell: "vagrant plugin list|grep -q vagrant-libvirt"
+      register: libvirt_plugin_check_result
+      ignore_errors: True
+      changed_when: False
+
+    - name: install libvirt plugin
+      shell: vagrant plugin install vagrant-libvirt
+      when: libvirt_plugin_check_result|failed

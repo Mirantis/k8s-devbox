@@ -1,4 +1,4 @@
-if [ "$USER" = "vagrant" ]; then
+if [ -f /vagrant_devbox ]; then
     # In case of vagrant VM, provide a useful default prompt and go to k8s directory
     # The prompts gets overridden in default ~/.bashrc,
     # so reset it even if this script was already sourced
@@ -16,7 +16,7 @@ export GOPATH=$KPATH
 export PATH=$HOME/go-tools/bin:$KPATH/bin:$PATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
 
-if [ "$USER" = "vagrant" -a -d "$KUBERNETES_SRC_DIR" ]; then
+if [ -f /vagrant_devbox -a -d "$KUBERNETES_SRC_DIR" ]; then
     cd "$KUBERNETES_SRC_DIR"
 fi
 

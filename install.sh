@@ -5,7 +5,16 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 k8s_repo_url=
 ansible_via_docker=
 target_hostname=
+provider_args=
 export ANSIBLE_ROLES_PATH=$script_dir/provisioning/roles
+export ON_MAC_OS_X=
+
+if [[ "$OSTYPE" == darwin* ]]; then
+    ON_MAC_OS_X=y
+else
+    export VAGRANT_DEFAULT_PROVIDER=libvirt
+    provider_args="--provider=libvirt"
+fi
 
 function install_roles {
     mkdir -p $ANSIBLE_ROLES_PATH
@@ -14,9 +23,10 @@ function install_roles {
 
 function usage {
     echo "usage:" 1>&2
-    echo "  $0 [-d] vagrant [K8S_REPO_URL]"
-    echo "  $0 [-d] local [K8S_REPO_URL]"
-    echo "  $0 [-d] remote HOST [K8S_REPO_URL]"
+    echo "  $0 vagrant [K8S_REPO_URL]"
+    echo "  $0 host"
+    echo "  $0 local [K8S_REPO_URL]"
+    echo "  $0 remote HOST [K8S_REPO_URL]"
     exit 1
 }
 
@@ -24,7 +34,11 @@ function install_using_vagrant {
     # https://kushaldas.in/posts/storage-volume-error-in-libvirt-with-vagrant.html
     # FIXME: happens too often for me for some reason
     virsh pool-refresh tmp >& /dev/null || true
-    K8S_REPO_URL=$k8s_repo_url vagrant up
+    K8S_REPO_URL=$k8s_repo_url vagrant up $provider_args
+}
+
+function provision_vm_host {
+    ansible-playbook -i localhost, -c local --ask-sudo-pass provisioning/host.yml
 }
 
 function install_via_ansible {
@@ -85,6 +99,9 @@ fi
 case "$cmd" in
     vagrant)
         install_using_vagrant
+        ;;
+    host)
+        provision_vm_host
         ;;
     local)
         install_locally

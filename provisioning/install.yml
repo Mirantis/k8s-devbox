@@ -40,4 +40,4 @@
   apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
 
 - name: add the user to 'docker' group
-  user: name=vagrant groups=docker append=yes
+  user: "name={{ ansible_env.USER }} groups=docker append=yes"

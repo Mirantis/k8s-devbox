@@ -9,6 +9,10 @@
     - include: install.yml
       become: true
 
+    - name: mark VM as vagrant devbox
+      file: path=/vagrant_devbox state=touch
+      become: true
+
     - name: check for vagrant libvirt plugin
       shell: "vagrant plugin list|grep -q vagrant-libvirt"
       register: libvirt_plugin_check_result

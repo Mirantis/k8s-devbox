@@ -2,10 +2,19 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "nrclark/xenial64-minimal-libvirt"
+  if ENV['ON_MAC_OS_X'].to_s != '' then
+    config.vm.box = "ubuntu/xenial64"
+  else
+    config.vm.box = "nrclark/xenial64-minimal-libvirt"
+  end
 
   config.vm.hostname = "devbox"
   config.vm.network :private_network, ip: "192.168.124.100"
+
+  config.vm.provider :virtualbox do |v|
+    v.memory = 2048
+    v.cpus = 2
+  end
 
   config.vm.provider :libvirt do |v|
     # avoid domain name conflicts
@@ -26,13 +35,22 @@ Vagrant.configure("2") do |config|
     v.management_network_address = '192.168.124.0/24'
   end
 
+  if ENV['ON_MAC_OS_X'].to_s != '' then
+    config.vm.provision "shell",
+      inline: "DEBIAN_FRONTEND=noninteractive apt-get install -y python2.7 python2.7-dev && ln -fs /usr/bin/python2.7 /usr/bin/python"
+  end
+
   # ansible_local provisioning doesn't work because libvirt provider
   # fails to provide /vagrant shared holder
   config.vm.provision "ansible" do |ansible|
 
     # use dirname here because dockerized ansible will have
     # different current directory
-    ansible.playbook = File.dirname(__FILE__) + "/provisioning/toplevel_vagrant.yml"
+    if ENV['ON_MAC_OS_X'].to_s != '' then
+      ansible.playbook = File.dirname(__FILE__) + "/provisioning/toplevel_vagrant_mac.yml"
+    else
+      ansible.playbook = File.dirname(__FILE__) + "/provisioning/toplevel_vagrant.yml"
+    end
     ansible.galaxy_role_file = File.dirname(__FILE__) + "/requirements.yml"
 
     if ENV['K8S_REPO_URL'].to_s != '' then
