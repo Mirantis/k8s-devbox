@@ -1,6 +1,13 @@
 #!/bin/bash
 set -u -e
 
+# workaround for https://github.com/ansible/ansible-modules-core/issues/3706
+# (fixed in Ansible 2.1.1).
+# joshualund.golang role fails without this
+export LANG=C
+export LC_ALL=C
+unset LANGUAGE
+
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 k8s_repo_url=
 ansible_via_docker=
