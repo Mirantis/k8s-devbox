@@ -29,7 +29,12 @@
   service: name=etcd state=stopped
 
 - name: disable etcd service
-  service: name=etcd enabled=no
+  shell: systemctl disable etcd
+  args:
+    removes: /etc/systemd/system/etcd2.service
+# FIXME: problem with service module (likely fixed in 2.1.1)
+# https://github.com/ansible/ansible-modules-core/issues/3868
+#   service: name=etcd enabled=no
 
 - name: install cgo & fix stdlib
   shell: "CGO_ENABLED=0 /usr/local/go/bin/go install -a -installsuffix cgo std"
