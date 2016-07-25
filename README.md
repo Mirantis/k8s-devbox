@@ -16,9 +16,13 @@ git clone https://github.com/ivan4th/k8s-devbox.git
 cd k8s-devbox
 ```
 
-You need to have [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) installed
-on your machine. For Mac OS X, you'll also need to install [Vagrant](https://www.vagrantup.com/)
-and [VirtualBox](https://en.wikipedia.org/wiki/VirtualBox).
+You need to have [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) >= 2.1.0
+installed on your machine. For Mac OS X, you'll also need to install [Vagrant](https://www.vagrantup.com/)
+and [VirtualBox](https://en.wikipedia.org/wiki/VirtualBox). On Linux, you need to stop VirtualBox service
+if it's running because it conflicts with libvirt:
+```
+sudo service virtualbox stop
+```
 
 On Ubuntu, use the following command to prepare the host:
 ```
