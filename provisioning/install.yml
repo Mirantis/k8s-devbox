@@ -26,7 +26,11 @@
 
 - name: stop etcd service
   # must not be started or hack/local-up-cluster.sh will not work
-  service: name=etcd state=stopped
+  shell: systemctl stop etcd
+# FIXME: problem with service module (likely fixed in 2.1.1)
+# https://github.com/ansible/ansible-modules-core/issues/3868
+#   service: name=etcd state=stopped
+  changed_when: False
 
 - name: disable etcd service
   shell: systemctl disable etcd
