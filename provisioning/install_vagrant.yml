@@ -1,0 +1,11 @@
+---
+- name: check whether vagrant 1.8.4+ is installed
+  # http://stackoverflow.com/questions/4023830/how-compare-two-strings-in-dot-separated-version-format-in-bash
+  shell: "dpkg --compare-versions $(dpkg-query -W --showformat='${Version}' vagrant) ge 1.8.4"
+  register: vagrant_version_check_result
+  ignore_errors: True
+  changed_when: False
+
+- name: install fresh vagrant package
+  apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
+  when: vagrant_version_check_result|failed

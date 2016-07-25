@@ -20,8 +20,7 @@
         - zlib1g-dev
         - ruby-dev
 
-    - name: install fresh vagrant package
-      apt: deb=https://releases.hashicorp.com/vagrant/1.8.4/vagrant_1.8.4_x86_64.deb
+    - include: install_vagrant.yml
       become: true
 
     - name: check for vagrant libvirt plugin
