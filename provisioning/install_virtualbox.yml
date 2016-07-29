@@ -5,8 +5,8 @@
 
 # FIXME: use 'service' when it's fixed (and rm changed_when: False)
 # https://github.com/ansible/ansible-modules-core/issues/3868
-- name: disable libvirt-bin service
-  shell: systemctl disable libvirt-bin && systemctl stop libvirt-bin
+- name: disable libvirt service
+  shell: (systemctl disable libvirt-bin && systemctl stop libvirt-bin) || (systemctl disable libvirtd && systemctl stop libvirtd)
   changed_when: False
   become: true
   ignore_errors: true

@@ -24,8 +24,8 @@
 
 # FIXME: use 'service' when it's fixed (and rm changed_when: False)
 # https://github.com/ansible/ansible-modules-core/issues/3868
-- name: enable libvirt-bin service
-  shell: systemctl enable libvirt-bin && systemctl start libvirt-bin
+- name: enable libvirt service
+  shell: (systemctl enable libvirt-bin && systemctl start libvirt-bin) || (systemctl enable libvirtd && systemctl start libvirtd)
   changed_when: False
   become: true
 
