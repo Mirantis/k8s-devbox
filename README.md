@@ -77,21 +77,26 @@ use your user account.
 The following shortcuts are provided in the shell:
 
 ```
+cdk
+```
+Chdir to Kubernetes source directory.
+
+```
 fix-influxdb
 ```
-This applies [my PR](https://github.com/kubernetes/kubernetes/pull/28771) that is
+Apply [my PR](https://github.com/kubernetes/kubernetes/pull/28771) that is
 necessary to unbreak vagrant provider. You may need it if you want to run
 e2e tests.
 
 ```
 kube-up
 ```
-Brings up a 2-node vagrant based cluster and switches to `vagrant` provider.
+Bring up a 2-node vagrant based cluster and switches to `vagrant` provider.
 
 ```
 kube-down
 ```
-Brings down the vagrant cluster.
+Bring down the vagrant cluster.
 
 ```
 list_e2e
@@ -101,7 +106,7 @@ List available e2e tests
 ```
 e2e [focus]
 ```
-Runs e2e test(s). You can specify a filter as regular expression. If
+Run e2e test(s). You can specify a filter as regular expression. If
 no filter (focus) is specified, the same set of e2e tests as in
 upstream CI is used. Note that you need to do `make quick-release` and
 start the cluster via either `local-up` or `kube-up` before you can
@@ -111,7 +116,7 @@ cluster may be unreliable.
 ```
 local-up
 ```
-Brings up a local cluster using `hack/local-up-cluster.sh`
+Bring up a local cluster using `hack/local-up-cluster.sh`
 with DNS support. You may want to use this command inside
 `screen`.
 
@@ -150,3 +155,12 @@ Run unit tests.
 
 There must be no symlinks in the path to Kubernetes source directory
 as this will cause e2e test scripts to fail.
+
+If you started `kube-up` without doing `fix-influxdb` first and
+e2e tests refuse to run, you can fix your vagrant cluster using following
+commands:
+```
+cdk
+vagrant ssh master -- sudo rm -rf /etc/kubernetes/addons/cluster-monitoring
+kubectl delete --now --namespace=kube-system pod monitoring-influxdb-grafana-v3-0
+```

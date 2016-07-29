@@ -7,8 +7,8 @@ fix-influxdb = fix InfluxDB cluster monitoring addon
 kube-up      = bring up the cluster
 kube-down    = bring down the cluster
 list_e2e     = list available e2e tests
-e2e [focus]  = run e2e test(s)
-               ('focus' is a regular expression, but spaces aren't allowed there)
+e2e [focus]  = run e2e test(s) optionally filtering them
+               by name using 'focus' regexp
 local-up     = bring up the local cluster
 use-local    = switch to 'local' provider (use with local-up)
 use-vagrant  = switch to 'vagrant' provider
