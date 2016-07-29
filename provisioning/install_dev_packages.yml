@@ -1,7 +1,4 @@
 ---
-- name: Update apt cache
-  apt: update_cache=yes cache_valid_time=3600
-
 - name: install dev packages
   apt: "name={{ item }} state=latest"
   with_items:
@@ -9,20 +6,12 @@
     - htop
     - mercurial
     - build-essential
-    - libvirt-bin
-    - qemu-system
-    - qemu-system-x86
-    - qemu-kvm
-    - libxslt-dev
-    - libxml2-dev
-    - libvirt-dev
-    - zlib1g-dev
-    - ruby-dev
     - nfs-kernel-server
     - docker.io
     - screen
     - curl
     - etcd
+  become: true
 
 - name: stop etcd service
   # must not be started or hack/local-up-cluster.sh will not work
@@ -31,21 +20,21 @@
 # https://github.com/ansible/ansible-modules-core/issues/3868
 #   service: name=etcd state=stopped
   changed_when: False
+  become: true
 
 - name: disable etcd service
   shell: systemctl disable etcd
   args:
     removes: /etc/systemd/system/etcd2.service
-# FIXME: problem with service module (likely fixed in 2.1.1)
-# https://github.com/ansible/ansible-modules-core/issues/3868
+# FIXME (see above)
 #   service: name=etcd enabled=no
 
 - name: install cgo & fix stdlib
   shell: "CGO_ENABLED=0 /usr/local/go/bin/go install -a -installsuffix cgo std"
   args:
     creates: /usr/local/go/pkg/linux_amd64_cgo
+  become: true
 
 - name: add the user to 'docker' group
   user: "name={{ ansible_env.USER }} groups=docker append=yes"
-
-- include: install_vagrant.yml
+  become: true

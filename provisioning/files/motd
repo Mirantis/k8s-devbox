@@ -1,14 +1,17 @@
 
 * k8s local development environment
 
+cdk          = chdir to k8s source directory
 fix-influxdb = fix InfluxDB cluster monitoring addon
                [tmp, currently needed for e2e tests]
 kube-up      = bring up the cluster
 kube-down    = bring down the cluster
+list_e2e     = list available e2e tests
 e2e [focus]  = run e2e test(s)
                ('focus' is a regular expression, but spaces aren't allowed there)
 local-up     = bring up the local cluster
 use-local    = switch to 'local' provider (use with local-up)
+use-vagrant  = switch to 'vagrant' provider
 
 * 'native' k8s commands
 

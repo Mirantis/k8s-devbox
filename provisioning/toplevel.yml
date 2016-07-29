@@ -1,9 +1,0 @@
-- name: DevBox
-  hosts: all
-  roles:
-    - { role: joshualund.golang, become: true }
-  tasks:
-    - include: install.yml
-      become: true
-
-    - include: devenv.yml

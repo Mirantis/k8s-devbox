@@ -3,6 +3,7 @@
 
 fix-influxdb = fix InfluxDB cluster monitoring addon
                [tmp, currently needed for e2e tests]
+list_e2e     = list available e2e tests
 e2e [focus]  = run e2e test(s)
                ('focus' is a regular expression, but spaces aren't allowed there)
 local-up     = bring up the local cluster

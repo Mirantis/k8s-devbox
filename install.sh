@@ -13,14 +13,46 @@ k8s_repo_url=
 ansible_via_docker=
 target_hostname=
 provider_args=
+vm_type=libvirt
+USE_VIRTUALBOX="${USE_VIRTUALBOX:-}"
 export ANSIBLE_ROLES_PATH=$script_dir/provisioning/roles
-export ON_MAC_OS_X=
 
-if [[ "$OSTYPE" == darwin* ]]; then
-    ON_MAC_OS_X=y
+if [ $# -gt 0 ]; then
+    if [ "$1" = "-d" ]; then
+        ansible_via_docker=y
+        shift
+    fi
+fi
+
+if [ $# -eq 0 ]; then
+    usage
+fi
+
+cmd="$1"
+shift
+
+if [ "$cmd" = "remote" ]; then
+    if [ $# -eq 0 ]; then
+        echo "must specify target hostname" 1>& 2
+    fi
+    target_hostname="$1"
+    shift
+fi
+
+k8s_repo_url=
+if [ $# -gt 0 ]; then
+    k8s_repo_url="$1"
+fi
+
+if [[ "$OSTYPE" == darwin* && "$cmd" != "remote" ]]; then
+    export USE_VIRTUALBOX=1
 else
     export VAGRANT_DEFAULT_PROVIDER=libvirt
     provider_args="--provider=libvirt"
+fi
+
+if [ -n "$USE_VIRTUALBOX" ]; then
+    vm_type=virtualbox
 fi
 
 function install_roles {
@@ -45,17 +77,19 @@ function install_using_vagrant {
 }
 
 function provision_vm_host {
-    ansible-playbook -i localhost, -c local --ask-sudo-pass provisioning/host.yml
+    ansible-playbook -i localhost, -c local --ask-sudo-pass \
+                     -e "devbox_type=vm_host vm_type=$vm_type" provisioning/playbook.yml
 }
 
 function install_via_ansible {
     conn_opts="$*"
     install_roles
-    extra_vars=
+    extra_vars="devbox_type=host vm_type=$vm_type"
     if [ -n "$k8s_repo_url" ]; then
-        extra_vars="--extra-vars={\"k8s_repo_url\":\"$k8s_repo_url\"}"
+        extra_vars="$extra_vars k8s_repo_url=$k8s_repo_url"
     fi
-    ansible-playbook $conn_opts --ask-sudo-pass $extra_vars provisioning/toplevel.yml
+    ansible-playbook $conn_opts --ask-sudo-pass \
+                     -e "$extra_vars" provisioning/playbook.yml
 }
 
 function install_locally {
@@ -66,13 +100,6 @@ function install_remotely {
     install_via_ansible -i "$target_hostname", --ssh-extra-args="-oForwardAgent=yes"
 }
 
-if [ $# -gt 0 ]; then
-    if [ "$1" = "-d" ]; then
-        ansible_via_docker=y
-        shift
-    fi
-fi
-
 if ! hash ansible-playbook 2>&1; then
     ansible_via_docker=y
 fi
@@ -81,26 +108,6 @@ if [ -n "$ansible_via_docker" ]; then
     echo "WiP: ansible invocation via docker doesn't work currently for vagrant due to ssh & file perm problems" 1>& 2
     exit 1
     # export PATH="$script_dir/ansible-via-docker:$PATH"
-fi
-
-if [ $# -eq 0 ]; then
-    usage
-fi
-
-cmd="$1"
-shift
-
-if [ "$cmd" = "remote" ]; then
-    if [ $# -eq 0 ]; then
-        echo "must specify target hostname" 1>& 2
-    fi
-    target_hostname="$1"
-    shift
-fi
-
-k8s_repo_url=
-if [ $# -gt 0 ]; then
-    k8s_repo_url="$1"
 fi
 
 case "$cmd" in

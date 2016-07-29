@@ -18,16 +18,17 @@ cd k8s-devbox
 
 You need to have [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) >= 2.1.0
 installed on your machine. For Mac OS X, you'll also need to install [Vagrant](https://www.vagrantup.com/)
-and [VirtualBox](https://en.wikipedia.org/wiki/VirtualBox). On Linux, you need to stop VirtualBox service
-if it's running because it conflicts with libvirt:
-```
-sudo service virtualbox stop
-```
+and [VirtualBox](https://en.wikipedia.org/wiki/VirtualBox).
 
 On Ubuntu, use the following command to prepare the host:
 ```
 ./install.sh host
 ```
+or
+```
+USE_VIRTUALBOX=1 ./install.sh host
+```
+to use VirtualBox instead of libvirt.
 You may need to relogin after that.
 
 To install using Vagrant:
@@ -35,6 +36,13 @@ To install using Vagrant:
 ./install.sh varant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
 ```
 (specify your kubernetes fork)
+
+If you want to force use of VirtualBox for the wrapper VM on Linux, use
+```
+USE_VIRTUALBOX=1 ./install.sh varant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
+```
+But note that VirtualBox doesn't support nested virtualization and you
+will not be able to use `kube-up` inside your VM.
 
 After installation, you may log into the box via
 ```
@@ -57,6 +65,10 @@ The same goes for the local machine:
 ./install.sh local git@github.com:YOUR_GITHUB_USERNAME/kubernetes
 ```
 
+You can prepend `USE_VIRTUALBOX=1` to `./install.sh remote ...` or
+`./install.sh local ...` to use VirtualBox instead of libvirt for
+`kube-up`.
+
 **Do not** invoke any of these commands as root, because they need to
 use your user account.
 
@@ -74,7 +86,7 @@ e2e tests.
 ```
 kube-up
 ```
-Brings up a 2-node vagrant based cluster.
+Brings up a 2-node vagrant based cluster and switches to `vagrant` provider.
 
 ```
 kube-down
@@ -82,12 +94,19 @@ kube-down
 Brings down the vagrant cluster.
 
 ```
+list_e2e
+```
+List available e2e tests
+
+```
 e2e [focus]
 ```
-Runs e2e test(s). You can specify a filter as regular expression
-(unfortunately, spaces arent' currently supported due to escape
-problems in k8s scripts). If no filter (focus) is specified,
-the smae set of e2e tests as in upstream CI is used.
+Runs e2e test(s). You can specify a filter as regular expression. If
+no filter (focus) is specified, the same set of e2e tests as in
+upstream CI is used. Note that you need to do `make quick-release` and
+start the cluster via either `local-up` or `kube-up` before you can
+run e2e tests. Be advised that running e2e tests against `local-up`
+cluster may be unreliable.
 
 ```
 local-up
@@ -99,7 +118,14 @@ with DNS support. You may want to use this command inside
 ```
 use-local
 ```
-Switch to 'local' provider (use with local-up).
+Switch to 'local' provider (use with local-up). You may need to
+do this in every terminal session you're using to work with
+the local cluster.
+
+```
+use-vagrant
+```
+Switch to 'vagrant' provider.
 
 ## "Native" k8s commands
 
@@ -119,3 +145,8 @@ Build k8s release for use with kube-up.
 make test
 ```
 Run unit tests.
+
+## Additional notes
+
+There must be no symlinks in the path to Kubernetes source directory
+as this will cause e2e test scripts to fail.

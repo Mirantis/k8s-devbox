@@ -7,17 +7,28 @@ if [ -f /vagrant_devbox ]; then
     export PS1='\[\033[1;95m\]\u@\h\[\e[0m\]:\[\e[1;32m\]\w\[\033[0;33m\]$(__git_ps1 " (%s) ")\[\e[0m\]\$ '
 fi
 
-if [ -n "${KUBERNETES_SRC_DIR:-}" ]; then
-    return
-fi
-
 export KPATH=$HOME/work/kubernetes
 export GOPATH=$KPATH
-export PATH=$HOME/go-tools/bin:$KPATH/bin:$PATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
+export KUBERNETES_PROVIDER=vagrant
+export PATH=$HOME/go-tools/bin:$KPATH/bin:$PATH
+
+if systemctl -q is-active virtualbox; then
+    export VAGRANT_DEFAULT_PROVIDER=virtualbox
+elif systemctl -q is-active libvirt-bin; then
+    export VAGRANT_DEFAULT_PROVIDER=libvirt
+# The following was causing ansible's scp to fail
+# with 'Received message too long'  
+#else
+#    echo "WARNING: no active virtualbox or libvirt-bin service detected"
+fi
+
+function cdk {
+    cd "$KUBERNETES_SRC_DIR"
+}
 
 if [ -f /vagrant_devbox -a -d "$KUBERNETES_SRC_DIR" ]; then
-    cd "$KUBERNETES_SRC_DIR"
+    cdk
 fi
 
 alias kubectl=$KUBERNETES_SRC_DIR/cluster/kubectl.sh
@@ -31,50 +42,77 @@ function fix-influxdb {
     )
 }
 
+function use-vagrant {
+    echo '+ export KUBERNETES_PROVIDER=vagrant'
+    export KUBERNETES_PROVIDER=vagrant
+}
+
 function kube-up {
     (
         set -x
-        VAGRANT_DEFAULT_PROVIDER=libvirt \
-          KUBERNETES_VAGRANT_USE_NFS=true \
+        KUBERNETES_VAGRANT_USE_NFS=true \
           KUBERNETES_NODE_MEMORY=1024 \
           NUM_NODES=2 \
           KUBERNETES_PROVIDER=vagrant \
           cluster/kube-up.sh
     )
-    echo '+ export KUBERNETES_PROVIDER=vagrant'
-    export KUBERNETES_PROVIDER=vagrant
+    use-vagrant
 }
 
 function kube-down {
     (
         set -x
-        VAGRANT_DEFAULT_PROVIDER=libvirt \
           NUM_NODES=2 \
           KUBERNETES_PROVIDER=vagrant \
           cluster/kube-down.sh
     )
 }
 
+function get-ext-ip {
+    ip route get 1 | awk '{print $NF;exit}'
+}
+
+function list_e2e {
+    (
+        cdk
+        # thanks to @asalkeld
+        grep -R "framework.KubeDescribe" test/e2e/* | cut -d"(" -f2 | cut -d"," -f1
+    )
+}
+
 function e2e {
+    cdk
+    extra_opts=""
+    extra_test_args=""
+    # work around test_args problems with spaces
+    if [ "$KUBERNETES_PROVIDER" = "local" ]; then
+        # thanks to @asalkeld
+        echo "+ export KUBE_MASTER_IP=\"$ext_ip\""
+        export KUBE_MASTER_IP="$ext_ip"
+        echo "+ export KUBE_MASTER=\"$ext_ip\""
+        export KUBE_MASTER="$ext_ip"
+        extra_opts="--check_node_count=false --check_version_skew=false"
+        extra_test_args=" --host=http://$KUBE_MASTER_IP:8080"
+        ext_ip="$(get-ext-ip)"
+    fi
     if [ $# -gt 0 ]; then
+        focus="${1// /\\s}"
         (
             set -x
-            KUBERNETES_PROVIDER=vagrant \
-              go run hack/e2e.go -v --test --test_args="--ginkgo.focus=$1"
+            go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
         )
     else
         # run 'upstream' set of tests
         (
             set -x
-            KUBERNETES_PROVIDER=vagrant \
-              go run ./hack/e2e.go -v --test \
-                --test_args='--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]'
+            go run ./hack/e2e.go -v --test \
+               --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
         )
     fi
-}
-
-function get-ext-ip {
-    ip route get 1 | awk '{print $NF;exit}'
+    echo "+ export KUBE_MASTER_IP="
+    export KUBE_MASTER_IP=
+    echo "+ export KUBE_MASTER="
+    export KUBE_MASTER=
 }
 
 function local-up {

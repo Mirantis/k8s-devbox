@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  if ENV['ON_MAC_OS_X'].to_s != '' then
+  if ENV['USE_VIRTUALBOX'].to_s != '' then
     config.vm.box = "ubuntu/xenial64"
   else
     config.vm.box = "nrclark/xenial64-minimal-libvirt"
@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
     v.management_network_address = '192.168.124.0/24'
   end
 
-  if ENV['ON_MAC_OS_X'].to_s != '' then
+  if ENV['USE_VIRTUALBOX'].to_s != '' then
     config.vm.provision "shell",
       inline: "DEBIAN_FRONTEND=noninteractive apt-get install -y python2.7 python2.7-dev && ln -fs /usr/bin/python2.7 /usr/bin/python"
   end
@@ -43,20 +43,22 @@ Vagrant.configure("2") do |config|
   # ansible_local provisioning doesn't work because libvirt provider
   # fails to provide /vagrant shared holder
   config.vm.provision "ansible" do |ansible|
+    ansible.playbook = File.dirname(__FILE__) + "/provisioning/playbook.yml"
+    ansible.extra_vars = {
+      devbox_type: 'vm'
+    }
 
     # use dirname here because dockerized ansible will have
     # different current directory
-    if ENV['ON_MAC_OS_X'].to_s != '' then
-      ansible.playbook = File.dirname(__FILE__) + "/provisioning/toplevel_vagrant_mac.yml"
+    if ENV['USE_VIRTUALBOX'].to_s != '' then
+      ansible.extra_vars[:vm_type] = 'virtualbox'
     else
-      ansible.playbook = File.dirname(__FILE__) + "/provisioning/toplevel_vagrant.yml"
+      ansible.extra_vars[:vm_type] = 'libvirt'
     end
     ansible.galaxy_role_file = File.dirname(__FILE__) + "/requirements.yml"
 
     if ENV['K8S_REPO_URL'].to_s != '' then
-      ansible.extra_vars = {
-        k8s_repo_url: ENV['K8S_REPO_URL']
-      }
+      ansible.extra_vars[:k8s_repo_url] = ENV['K8S_REPO_URL']
     end
 
     # Disable sudo to avoid problems with ssh agent.

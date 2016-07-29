@@ -1,0 +1,40 @@
+---
+- name: install packages required by vagrant-libvirt
+  apt: "name={{ item }} state=latest"
+  with_items:
+    - build-essential
+    - libvirt-bin
+    - qemu-system
+    - qemu-system-x86
+    - qemu-kvm
+    - libxslt-dev
+    - libxml2-dev
+    - libvirt-dev
+    - zlib1g-dev
+    - ruby-dev
+  become: true
+
+# FIXME: use 'service' when it's fixed (and rm changed_when: False)
+# https://github.com/ansible/ansible-modules-core/issues/3868
+- name: disable virtualbox service
+  shell: systemctl disable virtualbox && systemctl stop virtualbox
+  changed_when: False
+  become: true
+  ignore_errors: true
+
+# FIXME: use 'service' when it's fixed (and rm changed_when: False)
+# https://github.com/ansible/ansible-modules-core/issues/3868
+- name: enable libvirt-bin service
+  shell: systemctl enable libvirt-bin && systemctl start libvirt-bin
+  changed_when: False
+  become: true
+
+- name: check for vagrant libvirt plugin
+  shell: "vagrant plugin list|grep -q vagrant-libvirt"
+  register: libvirt_plugin_check_result
+  ignore_errors: True
+  changed_when: False
+
+- name: install libvirt plugin
+  shell: vagrant plugin install vagrant-libvirt
+  when: libvirt_plugin_check_result|failed

@@ -1,0 +1,48 @@
+# the following deployment types are supported:
+# devbox_type == 'vm_host':    prepare a libvirt VM host for devbox VM install
+# devbox_type == 'host':       provision the host to become devbox
+#     vm_type == 'libvirt':      use libvirt for kube-up
+#     vm_type == 'virtualbox':   use VirtualBox for kube-up
+# devbox_type == 'vm':         provision a devbox VM
+#     vm_type == 'libvirt':      use libvirt (kube-up will spawn nested VMs)
+#     vm_type == 'virtualbox':   use VirtualBox (kube-up will not work inside this VM)
+#
+- name: DevBox
+  hosts: all
+  roles:
+    - role: joshualund.golang
+      when: devbox_type != 'vm_host'
+      become: true
+  tasks:
+    - name: Update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+      become: true
+
+    - include: install_vagrant.yml
+      # virtualbox doesn't support nested virtualization
+      when: devbox_type != 'vm' or vm_type != 'virtualbox'
+
+    - block:
+        - include: resizefs.yml
+          # libvirt VM image we sue has smallish rootfs
+          when: vm_type == 'libvirt'
+          become: true
+
+        - name: mark VM as vagrant devbox
+          file: path=/vagrant_devbox state=touch
+          become: true
+
+        - name: install /etc/motd
+          # we don't clobber /etc/motd on 'real' systems,
+          # but for vagrant VM it's ok
+          copy: src=files/motd dest=/etc
+          become: true
+      when: devbox_type == 'vm'
+
+    - block:
+        - include: install_dev_packages.yml
+          become: true
+
+        - include: user_devenv.yml
+
+      when: devbox_type != 'vm_host'
