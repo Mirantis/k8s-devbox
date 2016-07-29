@@ -45,6 +45,10 @@ function fix-influxdb {
 function use-vagrant {
     echo '+ export KUBERNETES_PROVIDER=vagrant'
     export KUBERNETES_PROVIDER=vagrant
+    (
+        set -x
+        kubectl config use-context vagrant
+    )
 }
 
 function kube-up {
@@ -81,38 +85,36 @@ function list_e2e {
 }
 
 function e2e {
-    cdk
-    extra_opts=""
-    extra_test_args=""
-    # work around test_args problems with spaces
-    if [ "$KUBERNETES_PROVIDER" = "local" ]; then
-        # thanks to @asalkeld
-        echo "+ export KUBE_MASTER_IP=\"$ext_ip\""
-        export KUBE_MASTER_IP="$ext_ip"
-        echo "+ export KUBE_MASTER=\"$ext_ip\""
-        export KUBE_MASTER="$ext_ip"
-        extra_opts="--check_node_count=false --check_version_skew=false"
-        extra_test_args=" --host=http://$KUBE_MASTER_IP:8080"
-        ext_ip="$(get-ext-ip)"
-    fi
-    if [ $# -gt 0 ]; then
-        focus="${1// /\\s}"
-        (
-            set -x
-            go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
-        )
-    else
-        # run 'upstream' set of tests
-        (
-            set -x
-            go run ./hack/e2e.go -v --test \
-               --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
-        )
-    fi
-    echo "+ export KUBE_MASTER_IP="
-    export KUBE_MASTER_IP=
-    echo "+ export KUBE_MASTER="
-    export KUBE_MASTER=
+    (
+        cdk
+        extra_opts=""
+        extra_test_args=""
+        # work around test_args problems with spaces
+        if [ "$KUBERNETES_PROVIDER" = "local" ]; then
+            # thanks to @asalkeld
+            echo "+ export KUBE_MASTER_IP=\"$ext_ip\""
+            export KUBE_MASTER_IP="$ext_ip"
+            echo "+ export KUBE_MASTER=\"$ext_ip\""
+            export KUBE_MASTER="$ext_ip"
+            extra_opts="--check_node_count=false --check_version_skew=false"
+            extra_test_args=" --host=http://$KUBE_MASTER_IP:8080"
+            ext_ip="$(get-ext-ip)"
+        fi
+        if [ $# -gt 0 ]; then
+            focus="${1// /\\s}"
+            (
+                set -x
+                go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
+            )
+        else
+            # run 'upstream' set of tests
+            (
+                set -x
+                go run ./hack/e2e.go -v --test \
+                   --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
+            )
+        fi
+    )
 }
 
 function local-up {
