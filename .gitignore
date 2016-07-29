@@ -2,3 +2,4 @@
 .vagrant
 roles
 ubuntu*.log
+vagrant*deb
