@@ -137,6 +137,11 @@ Switch to 'vagrant' provider.
 The following commands may be useful for Kubernetes development:
 
 ```
+update-kubelet
+```
+Update kubelet on vagrant-based nodes.
+
+```
 make
 ```
 Build Kubernetes binaries.

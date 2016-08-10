@@ -133,3 +133,15 @@ function use-local {
     kubectl config use-context local
     set +x
 }
+
+function update-kubelet {
+    cdk
+    set -x
+    make
+    for node in node-1 node-2; do
+        NUM_NODES=2 vagrant ssh $node -- sudo systemctl stop kubelet.service
+        NUM_NODES=2 vagrant ssh $node -- 'sudo tee /usr/local/bin/kubelet>/dev/null' <_output/bin/kubelet
+        NUM_NODES=2 vagrant ssh $node -- sudo systemctl start kubelet.service
+    done
+    set +x
+}

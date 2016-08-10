@@ -1,13 +1,14 @@
 
 * k8s local development environment
 
-fix-influxdb = fix InfluxDB cluster monitoring addon
-               [tmp, currently needed for e2e tests]
-list_e2e     = list available e2e tests
-e2e [focus]  = run e2e test(s) optionally filtering them
-               by name using 'focus' regexp
-local-up     = bring up the local cluster
-use-local    = switch to 'local' provider (use with local-up)
+fix-influxdb   = fix InfluxDB cluster monitoring addon
+                 [tmp, currently needed for e2e tests]
+list_e2e       = list available e2e tests
+e2e [focus]    = run e2e test(s) optionally filtering them
+                 by name using 'focus' regexp
+local-up       = bring up the local cluster
+use-local      = switch to 'local' provider (use with local-up)
+update-kubelet = update kubelet on the vagrant-based nodes
 
 * 'native' k8s commands
 
