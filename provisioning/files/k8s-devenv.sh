@@ -24,7 +24,9 @@ elif systemctl -q is-active libvirt-bin; then
 fi
 
 function cdk {
+    set -x
     cd "$KUBERNETES_SRC_DIR"
+    set +x
 }
 
 if [ -f /vagrant_devbox -a -d "$KUBERNETES_SRC_DIR" ]; then
@@ -34,42 +36,37 @@ fi
 alias kubectl=$KUBERNETES_SRC_DIR/cluster/kubectl.sh
 
 function fix-influxdb {
-    (
-        set -x
-        cd $KUBERNETES_SRC_DIR
-        curl https://patch-diff.githubusercontent.com/raw/kubernetes/kubernetes/pull/28771.patch |
-            patch -p1
-    )
+    set -x
+    cd $KUBERNETES_SRC_DIR
+    curl https://patch-diff.githubusercontent.com/raw/kubernetes/kubernetes/pull/28771.patch |
+        patch -p1
+    set +x
 }
 
 function use-vagrant {
-    echo '+ export KUBERNETES_PROVIDER=vagrant'
+    set -x
     export KUBERNETES_PROVIDER=vagrant
-    (
-        set -x
-        kubectl config use-context vagrant
-    )
+    kubectl config use-context vagrant
+    set +x
 }
 
 function kube-up {
-    (
-        set -x
-        KUBERNETES_VAGRANT_USE_NFS=true \
-          KUBERNETES_NODE_MEMORY=1024 \
-          NUM_NODES=2 \
-          KUBERNETES_PROVIDER=vagrant \
-          cluster/kube-up.sh
-    )
+    set -x
+    KUBERNETES_VAGRANT_USE_NFS=true \
+      KUBERNETES_NODE_MEMORY=1024 \
+      NUM_NODES=2 \
+      KUBERNETES_PROVIDER=vagrant \
+      cluster/kube-up.sh
+    set +x
     use-vagrant
 }
 
 function kube-down {
-    (
-        set -x
-          NUM_NODES=2 \
-          KUBERNETES_PROVIDER=vagrant \
-          cluster/kube-down.sh
-    )
+    set -x
+    NUM_NODES=2 \
+      KUBERNETES_PROVIDER=vagrant \
+      cluster/kube-down.sh
+    set +x
 }
 
 function get-ext-ip {
@@ -92,53 +89,47 @@ function e2e {
         # work around test_args problems with spaces
         if [ "$KUBERNETES_PROVIDER" = "local" ]; then
             # thanks to @asalkeld
-            echo "+ export KUBE_MASTER_IP=\"$ext_ip\""
+            set -x
             export KUBE_MASTER_IP="$ext_ip"
-            echo "+ export KUBE_MASTER=\"$ext_ip\""
             export KUBE_MASTER="$ext_ip"
+            set +x
             extra_opts="--check_node_count=false --check_version_skew=false"
             extra_test_args=" --host=http://$KUBE_MASTER_IP:8080"
             ext_ip="$(get-ext-ip)"
         fi
         if [ $# -gt 0 ]; then
             focus="${1// /\\s}"
-            (
-                set -x
-                go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
-            )
+            set -x
+            go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
+            set +x
         else
             # run 'upstream' set of tests
-            (
-                set -x
-                go run ./hack/e2e.go -v --test \
-                   --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
-            )
+            set -x
+            go run ./hack/e2e.go -v --test \
+               --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
+            set +x
         fi
     )
 }
 
 function local-up {
-    echo '+ export KUBERNETES_PROVIDER=local'
-    export KUBERNETES_PROVIDER=local
     ext_ip="$(get-ext-ip)"
-    (
-        set -x
-        KUBE_ENABLE_CLUSTER_DNS=true \
-          KUBELET_HOST="$ext_ip" \
-          HOSTNAME_OVERRIDE=$KUBELET_HOST \
-          API_HOST=$KUBELET_HOST \
-          hack/local-up-cluster.sh
-    )
+    set -x
+    export KUBERNETES_PROVIDER=local
+    KUBE_ENABLE_CLUSTER_DNS=true \
+      KUBELET_HOST="$ext_ip" \
+      HOSTNAME_OVERRIDE=$KUBELET_HOST \
+      API_HOST=$KUBELET_HOST \
+      hack/local-up-cluster.sh
+    set +x
 }
 
 function use-local {
-    echo '+ export KUBERNETES_PROVIDER=local'
-    export KUBERNETES_PROVIDER=local
     ext_ip="$(get-ext-ip)"
-    (
-        set -x
-        kubectl config set-cluster local --server="http://$ext_ip:8080" --insecure-skip-tls-verify=true
-        kubectl config set-context local --cluster=local
-        kubectl config use-context local
-    )
+    set -x
+    export KUBERNETES_PROVIDER=local
+    kubectl config set-cluster local --server="http://$ext_ip:8080" --insecure-skip-tls-verify=true
+    kubectl config set-context local --cluster=local
+    kubectl config use-context local
+    set +x
 }
