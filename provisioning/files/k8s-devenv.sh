@@ -24,9 +24,7 @@ elif systemctl -q is-active libvirt-bin; then
 fi
 
 function cdk {
-    set -x
     cd "$KUBERNETES_SRC_DIR"
-    set +x
 }
 
 if [ -f /vagrant_devbox -a -d "$KUBERNETES_SRC_DIR" ]; then
@@ -40,14 +38,14 @@ function fix-influxdb {
     cd $KUBERNETES_SRC_DIR
     curl https://patch-diff.githubusercontent.com/raw/kubernetes/kubernetes/pull/28771.patch |
         patch -p1
-    set +x
+    { set +x; } 2>/dev/null
 }
 
 function use-vagrant {
     set -x
     export KUBERNETES_PROVIDER=vagrant
     kubectl config use-context vagrant
-    set +x
+    { set +x; } 2>/dev/null
 }
 
 function kube-up {
@@ -57,7 +55,7 @@ function kube-up {
       NUM_NODES=2 \
       KUBERNETES_PROVIDER=vagrant \
       cluster/kube-up.sh
-    set +x
+    { set +x; } 2>/dev/null
     use-vagrant
 }
 
@@ -66,7 +64,7 @@ function kube-down {
     NUM_NODES=2 \
       KUBERNETES_PROVIDER=vagrant \
       cluster/kube-down.sh
-    set +x
+    { set +x; } 2>/dev/null
 }
 
 function get-ext-ip {
@@ -92,7 +90,7 @@ function e2e {
             set -x
             export KUBE_MASTER_IP="$ext_ip"
             export KUBE_MASTER="$ext_ip"
-            set +x
+            { set +x; } 2>/dev/null
             extra_opts="--check_node_count=false --check_version_skew=false"
             extra_test_args=" --host=http://$KUBE_MASTER_IP:8080"
             ext_ip="$(get-ext-ip)"
@@ -101,13 +99,13 @@ function e2e {
             focus="${1// /\\s}"
             set -x
             go run hack/e2e.go -v --test --test_args="--ginkgo.focus=${focus}${extra_test_args}" $extra_opts
-            set +x
+            { set +x; } 2>/dev/null
         else
             # run 'upstream' set of tests
             set -x
             go run ./hack/e2e.go -v --test \
                --test_args="--ginkgo.skip=\[Slow\]|\[Serial\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]$extra_test_args" $extra_opts
-            set +x
+            { set +x; } 2>/dev/null
         fi
     )
 }
@@ -116,12 +114,15 @@ function local-up {
     ext_ip="$(get-ext-ip)"
     set -x
     export KUBERNETES_PROVIDER=local
-    KUBE_ENABLE_CLUSTER_DNS=true \
-      KUBELET_HOST="$ext_ip" \
-      HOSTNAME_OVERRIDE=$KUBELET_HOST \
-      API_HOST=$KUBELET_HOST \
-      hack/local-up-cluster.sh
-    set +x
+    { set +x; } 2>/dev/null
+    (
+      set -x
+      KUBE_ENABLE_CLUSTER_DNS=true \
+        KUBELET_HOST="$ext_ip" \
+        HOSTNAME_OVERRIDE=$KUBELET_HOST \
+        API_HOST=$KUBELET_HOST \
+        hack/local-up-cluster.sh
+    )
 }
 
 function use-local {
@@ -131,7 +132,7 @@ function use-local {
     kubectl config set-cluster local --server="http://$ext_ip:8080" --insecure-skip-tls-verify=true
     kubectl config set-context local --cluster=local
     kubectl config use-context local
-    set +x
+    { set +x; } 2>/dev/null
 }
 
 function update-kubelet {
@@ -143,5 +144,5 @@ function update-kubelet {
         NUM_NODES=2 vagrant ssh $node -- 'sudo tee /usr/local/bin/kubelet>/dev/null' <_output/bin/kubelet
         NUM_NODES=2 vagrant ssh $node -- sudo systemctl start kubelet.service
     done
-    set +x
+    { set +x; } 2>/dev/null
 }
