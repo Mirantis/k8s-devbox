@@ -1,8 +1,6 @@
 
 * k8s local development environment
 
-fix-influxdb   = fix InfluxDB cluster monitoring addon
-                 [tmp, currently needed for e2e tests]
 list_e2e       = list available e2e tests
 e2e [focus]    = run e2e test(s) optionally filtering them
                  by name using 'focus' regexp

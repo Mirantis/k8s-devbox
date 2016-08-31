@@ -82,13 +82,6 @@ cdk
 Chdir to Kubernetes source directory.
 
 ```
-fix-influxdb
-```
-Apply [my PR](https://github.com/kubernetes/kubernetes/pull/28771) that is
-necessary to unbreak vagrant provider. You may need it if you want to run
-e2e tests.
-
-```
 kube-up
 ```
 Bring up a 2-node vagrant based cluster and switches to `vagrant` provider.

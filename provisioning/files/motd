@@ -2,8 +2,6 @@
 * k8s local development environment
 
 cdk            = chdir to k8s source directory
-fix-influxdb   = fix InfluxDB cluster monitoring addon
-                 [tmp, currently needed for e2e tests]
 kube-up        = bring up the cluster
 kube-down      = bring down the cluster
 list_e2e       = list available e2e tests

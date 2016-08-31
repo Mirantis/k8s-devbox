@@ -33,14 +33,6 @@ fi
 
 alias kubectl=$KUBERNETES_SRC_DIR/cluster/kubectl.sh
 
-function fix-influxdb {
-    set -x
-    cd $KUBERNETES_SRC_DIR
-    curl https://patch-diff.githubusercontent.com/raw/kubernetes/kubernetes/pull/28771.patch |
-        patch -p1
-    { set +x; } 2>/dev/null
-}
-
 function use-vagrant {
     set -x
     export KUBERNETES_PROVIDER=vagrant
