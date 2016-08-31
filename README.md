@@ -1,4 +1,4 @@
-# Kubernetes development environment
+# Kubernetes Development Environment
 
 k8s-devbox provides a reproducible development environment
 for working on Kubernetes project.
