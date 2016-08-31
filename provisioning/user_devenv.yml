@@ -19,6 +19,7 @@
     PATH: "{{ ansible_env.HOME }}/go-tools/bin:/usr/local/go/bin:{{ ansible_env.PATH }}"
   with_items:
     - github.com/tools/godep
+    - github.com/jteeuwen/go-bindata/go-bindata
     - github.com/nsf/gocode
     - github.com/rogpeppe/godef
     - github.com/golang/lint/golint
