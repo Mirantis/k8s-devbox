@@ -10,24 +10,30 @@
     - docker.io
     - screen
     - curl
-    - etcd
   become: true
 
-- name: stop etcd service
-  # must not be started or hack/local-up-cluster.sh will not work
-  shell: systemctl stop etcd
-# FIXME: problem with service module (likely fixed in 2.1.1)
-# https://github.com/ansible/ansible-modules-core/issues/3868
-#   service: name=etcd state=stopped
-  changed_when: False
+- name: install etcd
+  unarchive:
+    src: https://github.com/coreos/etcd/releases/download/v3.0.4/etcd-v3.0.4-linux-amd64.tar.gz
+    dest: /opt
+    remote_src: yes
+    # work around https://github.com/ansible/ansible-modules-core/issues/4202
+    copy: no
   become: true
 
-- name: disable etcd service
-  shell: systemctl disable etcd
-  args:
-    removes: /etc/systemd/system/etcd2.service
-# FIXME (see above)
-#   service: name=etcd enabled=no
+- name: create etcd symlink
+  file:
+    src: /opt/etcd-v3.0.4-linux-amd64/etcd
+    dest: /usr/local/bin/etcd
+    state: link
+  become: true
+
+- name: create etcdctl symlink
+  file:
+    src: /opt/etcd-v3.0.4-linux-amd64/etcdctl
+    dest: /usr/local/bin/etcdctl
+    state: link
+  become: true
 
 - name: install cgo & fix stdlib
   shell: "CGO_ENABLED=0 /usr/local/go/bin/go install -a -installsuffix cgo std"
