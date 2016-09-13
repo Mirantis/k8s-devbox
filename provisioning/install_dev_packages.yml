@@ -9,6 +9,7 @@
     - nfs-kernel-server
     - screen
     - curl
+    - nano
   become: true
 
 - name: install etcd
