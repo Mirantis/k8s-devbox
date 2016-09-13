@@ -1,18 +1,25 @@
 
 * k8s local development environment
 
-cdk            = chdir to k8s source directory
-kube-up        = bring up the cluster
-kube-down      = bring down the cluster
-list_e2e       = list available e2e tests
-e2e [focus]    = run e2e test(s) optionally filtering them
-                 by name using 'focus' regexp
-local-up       = bring up the local cluster
-use-local      = switch to 'local' provider (use with local-up)
-use-vagrant    = switch to 'vagrant' provider
-update-kubelet = update kubelet on the vagrant-based nodes
+cdk                  = chdir to k8s source directory
+dind-up [N]          = bring up N-node DIND (Docker-in-Docker) cluster
+dind-up quick [N]    = bring up N-node DIND cluster without rebuilding
+                       the containers
+dind-down            = bring down DIND cluster
+vagrant-up           = bring up Vagrant cluster
+vagrant-down         = bring down Vagrant cluster
+local-up             = bring up the local cluster
+use-dind             = switch to using DIND closter
+use-local            = switch to 'local' provider (use with local-up)
+use-vagrant          = switch to 'vagrant' provider
+list_e2e             = list available e2e tests using Ginkgo dry run
+e2e [focus]          = run e2e test(s) optionally filtering them
+                       by name using 'focus' regexp
+update-kubelet       = update kubelet on the vagrant-based nodes
+testit [pkg] [regex] = run some of the unit tests
+devhelp              = display this help
 
-* 'native' k8s commands
+* native k8s commands
 
 make               = build k8s binaries
 make quick-release = build k8s release for use with kube-up

@@ -29,7 +29,7 @@
   become: true
 
 - name: source k8s-devenv.sh from bashrc
-  lineinfile: "dest={{ ansible_env.HOME }}/.bashrc regexp='^.*/k8s-devenv.sh' line='. /etc/profile.d/k8s-devenv.sh'"
+  lineinfile: "dest={{ ansible_env.HOME }}/.bashrc regexp='^.*/k8s-devenv.sh' line='. /etc/profile.d/k8s-devenv.sh #added-by-k8s-devbox'"
 
 - name: check out k8s source tree
   git:
