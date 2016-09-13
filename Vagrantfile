@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
 
   if ENV['USE_VIRTUALBOX'].to_s != '' then
     config.vm.provision "shell",
-      inline: "DEBIAN_FRONTEND=noninteractive apt-get install -y python2.7 python2.7-dev && ln -fs /usr/bin/python2.7 /usr/bin/python"
+      inline: "DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y python2.7 python2.7-dev && ln -fs /usr/bin/python2.7 /usr/bin/python"
   end
 
   # ansible_local provisioning doesn't work because libvirt provider
