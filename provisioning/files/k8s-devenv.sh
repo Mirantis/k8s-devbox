@@ -11,7 +11,7 @@ export KPATH=$HOME/work/kubernetes
 export GOPATH=$KPATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
 export KUBERNETES_PROVIDER=vagrant
-export PATH=$HOME/go-tools/bin:$KPATH/bin:$PATH
+export PATH=$HOME/go-tools/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/cluster:$PATH
 
 if systemctl -q is-active virtualbox; then
     export VAGRANT_DEFAULT_PROVIDER=virtualbox
