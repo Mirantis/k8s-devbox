@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
   if ENV['USE_VIRTUALBOX'].to_s != '' then
-    config.vm.box = "ubuntu/xenial64"
+    config.vm.box = "bento/ubuntu-16.04"
   else
     config.vm.box = "nrclark/xenial64-minimal-libvirt"
   end
