@@ -23,7 +23,6 @@
     - github.com/nsf/gocode
     - github.com/rogpeppe/godef
     - github.com/golang/lint/golint
-    - golang.org/x/tools/cmd/oracle
 
 - name: install k8s-devenv.sh into /etc/profile.d
   copy: src=files/k8s-devenv.sh dest=/etc/profile.d
