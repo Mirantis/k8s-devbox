@@ -26,14 +26,14 @@
 # https://github.com/ansible/ansible-modules-core/issues/3868
 - name: enable libvirt service
   shell: (systemctl enable libvirt-bin && systemctl start libvirt-bin) || (systemctl enable libvirtd && systemctl start libvirtd)
-  changed_when: False
+  changed_when: false
   become: true
 
 - name: check for vagrant libvirt plugin
   shell: "vagrant plugin list|grep -q vagrant-libvirt"
   register: libvirt_plugin_check_result
-  ignore_errors: True
-  changed_when: False
+  ignore_errors: true
+  changed_when: false
 
 - name: install libvirt plugin
   shell: vagrant plugin install vagrant-libvirt
