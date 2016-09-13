@@ -33,6 +33,7 @@ Vagrant.configure("2") do |config|
     v.volume_cache = 'none'
     v.management_network_name = 'vagrant-libvirt-new'
     v.management_network_address = '192.168.124.0/24'
+    v.graphics_port = 5999
   end
 
   if ENV['USE_VIRTUALBOX'].to_s != '' then
