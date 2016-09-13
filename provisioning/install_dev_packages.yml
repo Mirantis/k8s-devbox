@@ -7,7 +7,6 @@
     - mercurial
     - build-essential
     - nfs-kernel-server
-    - docker.io
     - screen
     - curl
   become: true

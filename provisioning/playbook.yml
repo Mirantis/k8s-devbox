@@ -13,6 +13,9 @@
     - role: joshualund.golang
       when: devbox_type != 'vm_host'
       become: true
+    - role: angstwad.docker_ubuntu
+      docker_opts: "--storage-driver=overlay2"
+      become: true
   tasks:
     - name: Update apt cache
       apt: update_cache=yes cache_valid_time=3600
