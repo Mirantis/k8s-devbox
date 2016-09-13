@@ -28,7 +28,7 @@ or
 ```
 USE_VIRTUALBOX=1 ./install.sh host
 ```
-to use VirtualBox instead of libvirt.
+to force the use of VirtualBox event if vagrant-libvirt plugin is installed.
 You may need to relogin after that.
 
 To install using Vagrant:
