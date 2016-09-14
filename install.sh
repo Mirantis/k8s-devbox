@@ -88,9 +88,9 @@ function install_to_home_dir {
     elif [ "$(uname)" == "Darwin" ]; then
         update_profile "$HOME/.profile" || update_profile "$HOME/.bash_profile"
     fi
-    if [ -n "$k8s_repo_url" -a ! -d $HOME/work/kubernetes/k8s.io/src/kubernetes ]; then
-        mkdir -p "$HOME/work/kubernetes/k8s.io/src"
-        git clone "$k8s_repo_url" "$HOME/work/kubernetes/k8s.io/src/kubernetes"
+    if [ -n "$k8s_repo_url" -a ! -d $HOME/work/kubernetes/src/k8s.io/kubernetes ]; then
+        mkdir -p "$HOME/work/kubernetes/src/k8s.io"
+        git clone "$k8s_repo_url" "$HOME/work/kubernetes/src/k8s.io/kubernetes"
     fi
     echo 1>&2
     echo "Please restart your shell to start using k8s-devbox." 1>&2
