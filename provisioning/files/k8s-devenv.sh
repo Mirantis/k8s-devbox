@@ -254,11 +254,11 @@ function conformance {
     trace GINKGO_PARALLEL_NODES=$num_nodes \
           GINKGO_PARALLEL=y \
           go run hack/e2e.go --v --test -check_version_skew=false \
-          --test_args="--ginkgo.focus=\[zConformance\] --ginkgo.skip=\[Serial\]${extra_test_args}" $extra_opts
+          --test_args="--ginkgo.focus=\[Conformance\] --ginkgo.skip=\[Serial\]${extra_test_args}" $extra_opts
     # [Serial] tests fail on DIND cluster as of now
     # trace KUBERNETES_CONFORMANCE_TEST=y \
     #       go run hack/e2e.go --v --test -check_version_skew=false \
-    #       --test_args="--ginkgo.focus=\[Serial\].*\[zConformance\]${extra_test_args}" $extra_opts
+    #       --test_args="--ginkgo.focus=\[Serial\].*\[Conformance\]${extra_test_args}" $extra_opts
 }
 
 function local-up {
