@@ -5,8 +5,16 @@ for working on Kubernetes project.
 
 It's currently tested on Ubuntu Xenial (x86_64) and Mac OS X 10.11.
 
-Demo:
-[![asciicast](https://asciinema.org/a/55d9hy8ckwz24fs1st3e3l9vy.png)](https://asciinema.org/a/55d9hy8ckwz24fs1st3e3l9vy)
+For easy creation of local k8s clusters k8s-devbox uses
+[kubernetes-dind-cluster](https://github.com/sttts/kubernetes-dind-cluster) tool
+written by Dr. Stefan Schimanski.
+
+Demo - Mac OS X, installation using `home` method, DIND cluster:
+[![asciicast](https://asciinema.org/a/58o3ak1q9etpi0tf6zft37wmo)](https://asciinema.org/a/58o3ak1q9etpi0tf6zft37wmo)
+
+Demo - Linux, installation using `vagrant` method, local and DIND clusters,
+conformance tests:
+[![asciicast](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l)](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l)
 
 ## Installation
 
@@ -16,11 +24,24 @@ git clone https://github.com/ivan4th/k8s-devbox.git
 cd k8s-devbox
 ```
 
-You need to have [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) >= 2.1.0
-installed on your machine. For Mac OS X, you'll also need to install [Vagrant](https://www.vagrantup.com/)
-and [VirtualBox](https://en.wikipedia.org/wiki/VirtualBox).
+To install the devbox in user's home directory without creating
+any VMs or changing configuration of the host machine, use
+```
+./install.sh home git@github.com:YOUR_GITHUB_USERNAME/kubernetes
+```
+You'll need to have Docker installed on your machine for this to
+work. `home` mode is supported on Linux and Mac OS X, but
+unfortunately as of now it only supports bash (zsh support is
+planned).
 
-On Ubuntu, use the following command to prepare the host:
+For other installation modes you need to have
+[Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation)
+>= 2.1.0 installed on your machine. For Mac OS X, you'll also need to
+install [Vagrant](https://www.vagrantup.com/) and
+[VirtualBox](https://en.wikipedia.org/wiki/VirtualBox).
+
+In case of VM-based installation on Ubuntu, use the following command
+to prepare the host:
 ```
 ./install.sh host
 ```
@@ -48,11 +69,6 @@ After installation, you may log into the box via
 ```
 vagrant ssh
 ```
-On Mac OS X you need to use
-```
-vagrant ssh -- -l ubuntu
-```
-(this part will be fixed).
 
 You can also provision a remote machine to become a k8s dev environment,
 but this parts needs some testing:
@@ -67,7 +83,7 @@ The same goes for the local machine:
 
 You can prepend `USE_VIRTUALBOX=1` to `./install.sh remote ...` or
 `./install.sh local ...` to use VirtualBox instead of libvirt for
-`kube-up`.
+`vagrant-up`.
 
 **Do not** invoke any of these commands as root, because they need to
 use your user account.
@@ -82,12 +98,24 @@ cdk
 Chdir to Kubernetes source directory.
 
 ```
-kube-up
+dind-up [quick] [N]
+```
+Bring up `N`-node DIND (Docker-in-Docker) cluster. `quick` mode can be
+used to start DIND cluster without rebuilding Docker images it uses.
+`N` (number of nodes) defaults to 2.
+
+```
+dind-down
+```
+Stop DIND cluster.
+
+```
+vagrant-up
 ```
 Bring up a 2-node vagrant based cluster and switches to `vagrant` provider.
 
 ```
-kube-down
+vagrant-down
 ```
 Bring down the vagrant cluster.
 
@@ -114,6 +142,11 @@ with DNS support. You may want to use this command inside
 `screen`.
 
 ```
+use-dind
+```
+Switch to using DIND cluster that's currently active.
+
+```
 use-local
 ```
 Switch to 'local' provider (use with local-up). You may need to
@@ -125,14 +158,28 @@ use-vagrant
 ```
 Switch to 'vagrant' provider.
 
-## "Native" k8s commands
-
-The following commands may be useful for Kubernetes development:
-
 ```
 update-kubelet
 ```
 Update kubelet on vagrant-based nodes.
+
+```
+testit [pkg] [regex]
+```
+Run unit test(s). `pkg` (package) and `regex` can be used to specify
+which tests to run, e.g.
+```
+testit pkg/api/validation TestValidateEvent
+```
+
+```
+devhelp
+```
+Display help on devbox commands.
+
+## "Native" k8s commands
+
+The following commands may be useful for Kubernetes development:
 
 ```
 make
