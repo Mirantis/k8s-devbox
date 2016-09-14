@@ -20,7 +20,7 @@ conformance tests:
 
 First, clone k8s-devbox repository:
 ```
-git clone https://github.com/ivan4th/k8s-devbox.git
+git clone https://github.com/mirantis/k8s-devbox.git
 cd k8s-devbox
 ```
 
