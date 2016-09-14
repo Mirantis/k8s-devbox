@@ -10,11 +10,11 @@ For easy creation of local k8s clusters k8s-devbox uses
 written by Dr. Stefan Schimanski.
 
 Demo - Mac OS X, installation using `home` method, DIND cluster:
-[![asciicast](https://asciinema.org/a/58o3ak1q9etpi0tf6zft37wmo)](https://asciinema.org/a/58o3ak1q9etpi0tf6zft37wmo)
+[![asciicast](https://asciinema.org/a/85690.png)](https://asciinema.org/a/85690)
 
 Demo - Linux, installation using `vagrant` method, local and DIND clusters,
 conformance tests:
-[![asciicast](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l)](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l)
+[![asciicast](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l.png)](https://asciinema.org/a/cjemrekkurdkhe19j539wii8l)
 
 ## Installation
 
