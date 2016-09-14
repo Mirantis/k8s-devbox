@@ -93,7 +93,7 @@ function install_to_home_dir {
         git clone "$k8s_repo_url" "$HOME/work/kubernetes/src/k8s.io/kubernetes"
     fi
     echo 1>&2
-    echo "Please restart your shell to start using k8s-devbox." 1>&2
+    echo "Please restart your shell to start using k8s-devbox or use . ~/.k8s-devbox/k8s-devenv.sh" 1>&2
 }
 
 function install_using_vagrant {
