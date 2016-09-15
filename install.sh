@@ -9,6 +9,7 @@ export LC_ALL=C
 unset LANGUAGE
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+nogo=
 k8s_repo_url=
 ansible_via_docker=
 target_hostname=
@@ -21,8 +22,9 @@ function usage {
     echo "Usage:" 1>&2
     echo "  ./install.sh local [K8S_REPO_URL]        - provision the local machine"
     echo "  ./install.sh remote HOST [K8S_REPO_URL]  - provision the remote host"
-    echo "  ./install.sh home [K8S_REPO_URL]         - install in current user's home directory"
+    echo "  ./install.sh home [-nogo] [K8S_REPO_URL] - install in current user's home directory"
     echo "                                             (WiP; currently bash-only)"
+    echo "                                             -nogo prevents the script from installing Go"
     echo "  ./install.sh vagrant [K8S_REPO_URL]      - install inside a Vagrant VM"
     echo "  ./install.sh host                        - prepare host machine for devbox VM"
     exit 1
@@ -39,7 +41,7 @@ function update_profile {
     fi
     if ! grep -q '#added-by-k8s-devbox' "$1"; then
         echo >>"$1"
-        echo "K8S_DEVBOX_HOMEDIR_INSTALL=true . '$devbox_dir'/k8s-devenv.sh #added-by-k8s-devbox" >> "$1"
+        echo ". '$devbox_dir'/k8s-devenv.sh #added-by-k8s-devbox" >> "$1"
     fi
 }
 
@@ -66,8 +68,10 @@ function install_go {
 }
 
 function install_go_tools {
-    mkdir -p "$devbox_dir/go-tools"
-    export GOPATH="$devbox_dir/go-tools"
+    if [ -z "$nogo" -o -z "${GOPATH:-}" ]; then
+        mkdir -p "$devbox_dir/go-tools"
+        export GOPATH="$devbox_dir/go-tools"
+    fi
     go get -u github.com/tools/godep
     go get -u github.com/jteeuwen/go-bindata/go-bindata
 }
@@ -77,7 +81,10 @@ function install_to_home_dir {
     mkdir -p "$devbox_dir"
     cp "$script_dir"/provisioning/files/k8s-devenv.sh "$devbox_dir"
     cp "$script_dir"/provisioning/files/motd "$devbox_dir/help.txt"
-    install_go
+    # TBD: verify prereqs
+    if [ -z "$nogo" ]; then
+        install_go
+    fi
     install_go_tools
     # based on from https://github.com/moovweb/gvm/blob/604e702e2a155b33c2f217f1f4931188344d4926/binscripts/gvm-installer#L96
     if [ -n "${ZSH_NAME:-}" ]; then
@@ -162,6 +169,11 @@ if [ "$cmd" = "remote" ]; then
         echo "must specify target hostname" 1>& 2
     fi
     target_hostname="$1"
+    shift
+fi
+
+if [ "${1:-}" = "-nogo" ]; then
+    nogo=1
     shift
 fi
 

@@ -15,11 +15,20 @@ fi
 export KPATH=$HOME/work/kubernetes
 export GOPATH=$KPATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
-if [ -n "${K8S_DEVBOX_HOMEDIR_INSTALL:-}" ]; then
+# FIXME: refactor this
+if [ -d "$HOME/.k8s-devbox/go" ]; then
+    # installed via ./install.sh home
     export GOROOT="$HOME/.k8s-devbox/go"
+    export PATH="$HOME/.k8s-devbox/bin:$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
+elif [ -d "$HOME/.k8s-devbox/go-tools" ]; then
+    # installed via ./install.sh home -nogo
     export PATH="$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
 else
-    export PATH=$HOME/go-tools/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH
+    export PATH="$HOME/go-tools/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
+fi
+
+if [ -d "$HOME/.k8s-devbox/bin" ]; then
+    export PATH="$HOME/.k8s-devbox/bin:$PATH"
 fi
 
 if hash systemctl 2>/dev/null; then
