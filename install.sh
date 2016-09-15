@@ -183,14 +183,16 @@ if [ $# -gt 0 ]; then
     k8s_repo_url="$1"
 fi
 
-if ! hash ansible-playbook 2>/dev/null; then
-    ansible_via_docker=y
-fi
+if [ "$cmd" != "home" ]; then
+    if ! hash ansible-playbook 2>/dev/null; then
+        ansible_via_docker=y
+    fi
 
-if [ -n "$ansible_via_docker" ]; then
-    echo "WiP: ansible invocation via docker doesn't work currently due to ssh & file perm problems" 1>& 2
-    exit 1
-    # export PATH="$script_dir/ansible-via-docker:$PATH"
+    if [ -n "$ansible_via_docker" ]; then
+        echo "WiP: ansible invocation via docker doesn't work currently due to ssh & file perm problems" 1>& 2
+        exit 1
+        # export PATH="$script_dir/ansible-via-docker:$PATH"
+    fi
 fi
 
 case "$cmd" in
