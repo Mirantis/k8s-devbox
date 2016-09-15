@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  if ENV['USE_VIRTUALBOX'].to_s != '' then
+    config.vm.box = "bento/ubuntu-16.04"
+  else
+    config.vm.box = "nrclark/xenial64-minimal-libvirt"
+  end
+
+  config.vm.hostname = "devbox"
+  #config.vm.network :private_network, ip: "192.168.129.100"
+
+  config.vm.provider :virtualbox do |v|
+    v.memory = 6000
+    v.cpus = 2
+  end
+
+  config.vm.provider :libvirt do |v|
+    # avoid domain name conflicts
+    v.random_hostname = true
+
+    v.memory = 16384
+    v.cpus = 6
+    v.storage :file, :size => '100G'
+
+    v.nested = true
+    v.volume_cache = 'none'
+    #v.management_network_name = 'vagrant-libvirt-devbox-test'
+    #v.management_network_address = '192.168.129.0/24'
+    #v.graphics_port = 5998
+  end
+  config.vm.provision "shell", path: "provision.sh"
+end

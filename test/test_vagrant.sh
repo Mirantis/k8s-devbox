@@ -1,5 +1,10 @@
 #!/bin/bash
 set -u -e -x
+tempdir="$(mktemp -d)"
+cp -av "$(dirname "${BASH_SOURCE[0]}")/.." "$tempdir"/devbox
+cd "$tempdir"/devbox
+trap 'vagrant destroy || true; rm -rf "$tempdir"' EXIT
+
 ./install.sh vagrant https://github.com/kubernetes/kubernetes.git
 vagrant ssh -- '
 export PATH="/usr/local/go/bin:$PATH"
@@ -13,7 +18,6 @@ conformance
 dind-down &&
 testit pkg/api/validation TestValidateEvent
 '
-vagrant destroy
 
-# TODO: add local-up testing
-# TODO: add vagrant-up testing
+# TODO: test local-up
+# TODO: test vagrant-up
