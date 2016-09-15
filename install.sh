@@ -77,9 +77,14 @@ function install_go_tools {
     go get -u github.com/jteeuwen/go-bindata/go-bindata
 }
 
+function install_docker_compose {
+    curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` > "$devbox_dir/bin/docker-compose"
+    chmod +x "$devbox_dir/bin/docker-compose"
+}
+
 function install_to_home_dir {
     devbox_dir="$HOME"/.k8s-devbox
-    mkdir -p "$devbox_dir"
+    mkdir -p "$devbox_dir" "$devbox_dir/bin"
     cp "$script_dir"/provisioning/files/k8s-devenv.sh "$devbox_dir"
     cp "$script_dir"/provisioning/files/motd "$devbox_dir/help.txt"
     # TBD: verify prereqs
@@ -87,6 +92,10 @@ function install_to_home_dir {
         install_go
     fi
     install_go_tools
+    if [ "$(uname)" != "Darwin" ]; then
+        # docker-compose is bundled with Docker on Mac OS X
+        install_docker_compose
+    fi
     # based on from https://github.com/moovweb/gvm/blob/604e702e2a155b33c2f217f1f4931188344d4926/binscripts/gvm-installer#L96
     if [ -n "${ZSH_NAME:-}" ]; then
         echo "Sorry, zsh isn't supported yet" 1>&2
