@@ -65,6 +65,7 @@ function install_go {
     rm -f "$go_tarball"
     export GOROOT="$devbox_dir/go"
     export PATH="$devbox_dir/go/bin:$PATH"
+    CGO_ENABLED=0 go install -a -installsuffix cgo std
 }
 
 function install_go_tools {
