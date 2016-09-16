@@ -54,13 +54,13 @@ You may need to relogin after that.
 
 To install using Vagrant:
 ```
-./install.sh varant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
+./install.sh vagrant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
 ```
 (specify your kubernetes fork)
 
 If you want to force use of VirtualBox for the wrapper VM on Linux, use
 ```
-USE_VIRTUALBOX=1 ./install.sh varant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
+USE_VIRTUALBOX=1 ./install.sh vagrant git@github.com:YOUR_GITHUB_USERNAME/kubernetes
 ```
 But note that VirtualBox doesn't support nested virtualization and you
 will not be able to use `kube-up` inside your VM.
