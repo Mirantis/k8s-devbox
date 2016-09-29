@@ -214,7 +214,18 @@ function list_e2e {
     )
 }
 
-function set_e2e_opts {
+function e2e_setup {
+    cdk
+    if [ ! -f _output/bin/e2e.test ]; then
+        trace make WHAT=test/e2e/e2e.test
+    fi
+    if [ ! -f _output/bin/ginkgo ]; then
+        make WHAT=vendor/github.com/onsi/ginkgo/ginkgo
+    fi
+    if [ ! -f _output/bin/kubectl ]; then
+        make WHAT=cmd/kubectl
+    fi
+
     extra_opts=""
     extra_test_args=""
     # work around test_args problems with spaces
@@ -234,17 +245,7 @@ function set_e2e_opts {
 
 function e2e {
     (
-        cdk
-        if [ ! -f _output/bin/e2e.test ]; then
-            trace make WHAT=test/e2e/e2e.test
-        fi
-        if [ ! -f _output/bin/ginkgo ]; then
-            make WHAT=vendor/github.com/onsi/ginkgo/ginkgo
-        fi
-        if [ ! -f _output/bin/kubectl ]; then
-            make WHAT=cmd/kubectl
-        fi
-        set_e2e_opts
+        e2e_setup
         status=0
         if [ $# -gt 0 ]; then
             focus="$(escape_test_name "$1")"
@@ -258,16 +259,19 @@ function e2e {
 }
 
 function conformance {
-    num_nodes="$(kubectl get nodes -o name|wc -l)"
-    set_e2e_opts
-    trace GINKGO_PARALLEL_NODES=$num_nodes \
-          GINKGO_PARALLEL=y \
-          go run hack/e2e.go --v --test -check_version_skew=false \
-          --test_args="--ginkgo.focus=\[Conformance\] --ginkgo.skip=\[Serial\]${extra_test_args}" $extra_opts
-    # [Serial] tests fail on DIND cluster as of now
-    # trace KUBERNETES_CONFORMANCE_TEST=y \
-    #       go run hack/e2e.go --v --test -check_version_skew=false \
-    #       --test_args="--ginkgo.focus=\[Serial\].*\[Conformance\]${extra_test_args}" $extra_opts
+    (
+        num_nodes="$(kubectl get nodes -o name|wc -l)"
+        e2e_setup
+        trace KUBERNETES_CONFORMANCE_TEST=y \
+              GINKGO_PARALLEL_NODES=$num_nodes \
+              GINKGO_PARALLEL=y \
+              go run hack/e2e.go --v --test -check_version_skew=false \
+              --test_args="--ginkgo.focus=\[Conformance\] --ginkgo.skip=\[Serial\]${extra_test_args}" $extra_opts
+        # [Serial] tests fail on DIND cluster as of now
+        trace KUBERNETES_CONFORMANCE_TEST=y \
+              go run hack/e2e.go --v --test -check_version_skew=false \
+              --test_args="--ginkgo.focus=\[Serial\].*\[Conformance\]${extra_test_args}" $extra_opts
+    )
 }
 
 function local-up {
