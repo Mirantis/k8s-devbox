@@ -10,4 +10,4 @@ export GOPATH=$HOME/go
 export PATH=$HOME/go/bin:$PATH
 
 ./install.sh home -nogo https://github.com/kubernetes/kubernetes.git
-devbox-test-e2e-simple
+devbox-test-e2e-simple 'export GOPATH=$HOME/go; export PATH=$HOME/go/bin:$PATH'
