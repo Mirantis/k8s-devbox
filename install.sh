@@ -40,10 +40,11 @@ function install_roles {
 }
 
 function update_profile {
-    if [ ! -f "$1" ]; then
+    if [ ! -f "$1" -a ! -L "$1" ]; then
         return 1
     fi
     if ! grep -q '#added-by-k8s-devbox' "$1"; then
+        echo "Adding k8s-devenv.sh to $1.."
         echo >>"$1"
         echo ". '$devbox_dir'/k8s-devenv.sh #added-by-k8s-devbox" >> "$1"
     fi
@@ -102,11 +103,10 @@ function install_to_home_dir {
     fi
     # based on from https://github.com/moovweb/gvm/blob/604e702e2a155b33c2f217f1f4931188344d4926/binscripts/gvm-installer#L96
     if [ -n "${ZSH_NAME:-}" ]; then
-        echo "Sorry, zsh isn't supported yet" 1>&2
-        exit 1
-    elif [ "$(uname)" == "Linux" ]; then
+        update_profile "$HOME/.zshrc"
+    elif [ "$(uname)" = "Linux" ]; then
         update_profile "$HOME/.bashrc" || update_profile "$HOME/.bash_profile"
-    elif [ "$(uname)" == "Darwin" ]; then
+    elif [ "$(uname)" = "Darwin" ]; then
         update_profile "$HOME/.profile" || update_profile "$HOME/.bash_profile"
     fi
     if [ -n "$k8s_repo_url" -a ! -d $HOME/work/kubernetes/src/k8s.io/kubernetes ]; then

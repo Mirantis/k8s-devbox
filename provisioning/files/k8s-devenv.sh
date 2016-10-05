@@ -126,11 +126,9 @@ function use-vagrant {
 function dind-up {
     cdk
     if [ ! -d dind ]; then
-        # TODO: switch to https://github.com/sttts/kubernetes-dind-cluster
-        # after https://github.com/sttts/kubernetes-dind-cluster/pull/1 is merged
-        trace git clone https://github.com/ivan4th/kubernetes-dind-cluster.git dind
+        trace git clone https://github.com/sttts/kubernetes-dind-cluster.git dind
     fi
-    if [ "$(uname)" == "Darwin" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
         if [ ! -f _output/dockerized/bin/linux/amd64/hyperkube ]; then
             trace build/run.sh make WHAT=cmd/hyperkube
         fi
