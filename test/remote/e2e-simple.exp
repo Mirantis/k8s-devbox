@@ -1,0 +1,44 @@
+#!/usr/bin/expect -f
+set hostname [exec hostname -s]
+set prompt "$hostname.*:.*~.*\\\$ *"
+
+proc waitprompt {timeout} {
+    global prompt
+    expect {
+        -timeout $timeout
+        timeout {puts "\nTimed out waiting for prompt\n"; exit 1}
+        -re "$prompt"
+    }
+}
+
+proc cmd {timeout cmd} {
+    send "$cmd || exit 1\n"
+    waitprompt $timeout
+}
+
+spawn bash -lis
+
+waitprompt 10
+
+send "\[ -f /tmp/extra_cmds \] && . /tmp/extra_cmds\n"
+waitprompt 5
+cmd 5 "cdk"
+
+set prompt "$hostname.*:.*kubernetes.*\\\$ *"
+
+cmd 500 "dind-up 8"
+cmd 120 "(list_e2e DNS | grep \"should provide DNS for the cluster\")"
+cmd 200 "e2e \"existing RC\" || exit 1"
+cmd 30 "dind-down"
+
+send "exit 0\n"
+
+expect eof
+
+lassign [wait] pid spawnid os_error_flag value
+
+if {$os_error_flag == 0} {
+    exit $value
+} else {
+    exit $value
+}
