@@ -16,6 +16,10 @@ target_hostname=
 provider_args=
 vm_type=libvirt
 USE_VIRTUALBOX="${USE_VIRTUALBOX:-}"
+ansible_ask_become_pass=
+if ! sudo -n true 2>/dev/null; then
+    ansible_ask_become_pass="--ask-become-pass"
+fi
 export ANSIBLE_ROLES_PATH=$script_dir/provisioning/roles
 
 function usage {
@@ -137,7 +141,7 @@ function install_using_vagrant {
 }
 
 function provision_vm_host {
-    ansible-playbook -i localhost, -c local --ask-sudo-pass \
+    ansible-playbook -i localhost, -c local ${ansible_ask_become_pass} \
                      -e "devbox_type=vm_host vm_type=$vm_type" provisioning/playbook.yml
 }
 
@@ -148,7 +152,7 @@ function install_via_ansible {
     if [ -n "$k8s_repo_url" ]; then
         extra_vars="$extra_vars k8s_repo_url=$k8s_repo_url"
     fi
-    ansible-playbook $conn_opts --ask-sudo-pass \
+    ansible-playbook $conn_opts ${ansible_ask_become_pass} \
                      -e "$extra_vars" provisioning/playbook.yml
 }
 
