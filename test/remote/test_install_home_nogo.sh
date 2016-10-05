@@ -1,7 +1,9 @@
 #!/bin/bash
 . test/remote/common.sh
 
-sudo apt-get install -y golang-go
+export DEBIAN_FRONTEND=noninteractive
+sudo -E apt-get update
+sudo -E apt-get install -y golang-go
 sudo bash -c "CGO_ENABLED=0 go install -a -installsuffix cgo std"
 mkdir -p $HOME/go
 export GOPATH=$HOME/go
