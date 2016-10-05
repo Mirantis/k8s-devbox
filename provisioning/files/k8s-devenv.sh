@@ -13,18 +13,24 @@ if [ -n "$K8S_DEVBOX_FULL_ENV" ]; then
 fi
 
 export KPATH=$HOME/work/kubernetes
+if [ -n "${GOPATH:-}" ]; then
+    # If there was some GOPATH already, make sure bin directory from the first
+    # entry is added to path. That's because `./install.sh home` may have
+    # installed go tools there
+    export PATH="${GOPATH//://bin:}/bin:$PATH"
+fi
 export GOPATH=$KPATH
 export KUBERNETES_SRC_DIR=$KPATH/src/k8s.io/kubernetes
-# FIXME: refactor this
+export PATH="$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$KUBERNETES_SRC_DIR/cluster:$PATH"
 if [ -d "$HOME/.k8s-devbox/go" ]; then
     # installed via ./install.sh home
     export GOROOT="$HOME/.k8s-devbox/go"
-    export PATH="$HOME/.k8s-devbox/bin:$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
+    export PATH="$HOME/.k8s-devbox/bin:$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$PATH"
 elif [ -d "$HOME/.k8s-devbox/go-tools" ]; then
     # installed via ./install.sh home -nogo
-    export PATH="$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
+    export PATH="$HOME/.k8s-devbox/go-tools/bin:$GOROOT/bin:$PATH"
 else
-    export PATH="$HOME/go-tools/bin:$KPATH/bin:$KUBERNETES_SRC_DIR/_output/bin:$PATH"
+    export PATH="$HOME/go-tools/bin:$PATH"
 fi
 
 if [ -d "$HOME/.k8s-devbox/bin" ]; then
