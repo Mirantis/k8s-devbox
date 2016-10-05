@@ -30,7 +30,13 @@ else
     test_cases=("$@")
 fi
 status=0
+test_pids=()
 for name in "${test_cases[@]}"; do
+    if [ ! -f "remote/${name}" ]; then
+        status=1
+        echo "Invalid test name: ${name}" >&2
+        continue
+    fi
     (
         echo "************* ${name} START"
         instance_name="devbox-tester-${i}"
@@ -63,8 +69,10 @@ for name in "${test_cases[@]}"; do
     test_pids[$((i++))]=$!
 done
 
-for pid in ${test_pids[*]}; do
-    wait ${pid}
-done
+if [ ${#test_pids[@]} -gt 0 ]; then
+    for pid in ${test_pids[*]}; do
+        wait ${pid}
+    done
+fi
 
 exit ${status}
