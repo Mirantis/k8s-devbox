@@ -12,6 +12,8 @@ if [ -n "$K8S_DEVBOX_FULL_ENV" ]; then
     export PS1='\[\033[1;95m\]\u@\h\[\e[0m\]:\[\e[1;32m\]\w\[\033[0;33m\]$(__git_ps1 " (%s) ")\[\e[0m\]\$ '
 fi
 
+K8S_DIND_BRANCH="master"
+K8S_DIND_REPO_URL="${K8S_DIND_REPO_URL:-https://github.com/sttts/kubernetes-dind-cluster.git}"
 export KPATH=$HOME/work/kubernetes
 if [ -n "${GOPATH:-}" ]; then
     # If there was some GOPATH already, make sure bin directory from the first
@@ -132,7 +134,7 @@ function use-vagrant {
 function dind-up {
     cdk
     if [ ! -d dind ]; then
-        trace git clone https://github.com/sttts/kubernetes-dind-cluster.git dind
+        trace git clone -b "${K8S_DIND_BRANCH}" "${K8S_DIND_REPO_URL}" dind
     fi
     if [ "$(uname)" = "Darwin" ]; then
         if [ ! -f _output/dockerized/bin/linux/amd64/hyperkube ]; then
