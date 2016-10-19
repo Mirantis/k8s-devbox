@@ -3,6 +3,8 @@ if [ -f /vagrant_devbox ]; then
     K8S_DEVBOX_FULL_ENV=true
 fi
 
+NUM_NODES="${NUM_NODES:-2}"
+
 if [ -n "$K8S_DEVBOX_FULL_ENV" ]; then
     # In case of vagrant VM, provide a useful default prompt and go to k8s directory
     # The prompts gets overridden in default ~/.bashrc,
@@ -184,15 +186,13 @@ function vagrant-up {
     trace make quick-release
     trace KUBERNETES_VAGRANT_USE_NFS=true \
       KUBERNETES_NODE_MEMORY=1024 \
-      NUM_NODES=2 \
       KUBERNETES_PROVIDER=vagrant \
       cluster/kube-up.sh
     use-vagrant
 }
 
 function vagrant-down {
-    trace NUM_NODES=2 \
-      KUBERNETES_PROVIDER=vagrant \
+    trace KUBERNETES_PROVIDER=vagrant \
       cluster/kube-down.sh
 }
 
@@ -301,10 +301,10 @@ function use-local {
 function update-kubelet {
     cdk
     trace make
-    for node in node-1 node-2; do
-        trace NUM_NODES=2 vagrant ssh $node -- sudo systemctl stop kubelet.service
-        trace NUM_NODES=2 vagrant ssh $node -- 'sudo tee /usr/local/bin/kubelet>/dev/null' <_output/bin/kubelet
-        trace NUM_NODES=2 vagrant ssh $node -- sudo systemctl start kubelet.service
+    for node_no in $(seq 1 "$NUM_NODES") ; do
+        trace vagrant ssh node-$node_no -- sudo systemctl stop kubelet.service
+        trace vagrant ssh node-$node_no -- 'sudo tee /usr/local/bin/kubelet>/dev/null' <_output/bin/kubelet
+        trace vagrant ssh node-$node_no -- sudo systemctl start kubelet.service
     done
 }
 
