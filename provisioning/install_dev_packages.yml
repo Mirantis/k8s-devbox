@@ -17,8 +17,6 @@
     src: https://github.com/coreos/etcd/releases/download/v3.0.4/etcd-v3.0.4-linux-amd64.tar.gz
     dest: /opt
     remote_src: yes
-    # work around https://github.com/ansible/ansible-modules-core/issues/4202
-    copy: no
   become: true
 
 - name: create etcd symlink
